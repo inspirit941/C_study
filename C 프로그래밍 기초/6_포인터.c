@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+void swap(int a, int b);
+void swap_addr(int * a, int *b);
+void changeArray(int *ptr);
 int main(void){
     int a=1;
     int b=2;
@@ -54,5 +57,77 @@ int main(void){
     for (int i=0;i<3;i++){
         printf("포인터 ptr[%d]의 값: %d\n",i,ptr[i]);
     }
+    // *(arr+i) == arr[i] 와 동일한 표현
+    // arr == arr 배열의 첫번째 값 주소와 동일하다.
+    printf("arr 자체의 값: %d\n",arr);
+    printf("arr[0]의 주소: %d\n",&arr[0]);
+
+    printf("arr 자체의 값은 주소를 갖는다. 이 주소의 실제 값: %d\n", *arr);
+    printf("arr[0]의 실제 값:%d\n",*&arr[0]);
+
+    //즉 메모리 주소를 지정해야 할 때는 변수를 선언할 때 *를 붙인다. 
+    // int *ptr = arr (arr이란 이름은 arr이란 array의 가장 첫번째 값의 주소를 갖는다.)
+    // 주소 변수 앞에 *를 붙이면, 그 주소의 값을 가져온다.
+    // 값을 반환하는 변수 앞에 &를 붙이면 그 변수의 주소를 반환한다.
+    // 따라서 *&가 동시에 붙어 있으면 별 의미가 없다.
+
+    int k=10;
+    int m=20;
+    //a와 b의 값을 바꾼다
+    printf("Swap 함수이전- k:%d, m:%d\n",k,m);
+    printf("Swap 함수이전 주소값- k:%d, m:%d\n",&k,&m);
+    swap(k,m);
+    printf("swap 함수 이후 k:%d, m:%d\n",k,m);
+    printf("Swap 함수이후 주소값- k:%d, m:%d\n",&k,&m);
+    
+    // 값에 의한 복사 (call by value)
+    // swap 함수 내에서 실행될 때는 '값'만 받은 것.
+    // 주소가 변하지 않음.
+    // 즉 함수 안에서 실행될 때는, 원래 정의된 k,m의 주소값을 쓰는 게 아니라
+    // 새로운 주소값에 k와 m의 '값'만을 넣어 계산한 것.
+
+    // 만약 주소값 자체를 넘길 경우???
+    printf("Swap 함수이전- k:%d, m:%d\n",k,m);
+    printf("Swap 함수이전 주소값- k:%d, m:%d\n",&k,&m);
+    swap_addr(&k,&m);
+    printf("swap 함수 이후 k:%d, m:%d\n",k,m);
+    printf("Swap 함수이후 주소값- k:%d, m:%d\n",&k,&m);
+    
+
+    
+    int arr2[3] = {10,20,30};
+    //배열일 때 arr2는 주소를 나타낸다.(arr2[0]의 주소값)
+    // 그래서 changeArray에서 arr2를 바로 넣을 수 있는 것.
+    // arr 대신에 &arr[0]를 넣어도 동일하게 작동한다.
+    changeArray(arr2);
+    for (int i=0; i<3;i++){
+        printf("%d\n",arr2[i]);
+    }
+    
+    //scanf에서 input값을 &변수명으로 저장하는 이유 -> 해당 변수의 주소값에 넣기 위해서.
     return 0;
+    // 값만 보내서 바뀌는 게 아니라, 주소값을 보내야 제대로 된 변환이 이루어진다.
+
+}
+
+void swap(int a, int b){
+    int temp = a;
+    a = b;
+    b = temp;
+    printf("swap 함수 안에서 k:%d, m:%d\n",a,b);
+    printf("Swap 함수 안에서 주소값- k:%d, m:%d\n",&a,&b);
+    
+}
+
+void swap_addr(int *a, int *b){
+    int temp = *a; //여기서 정의한 *a는 주소에 실제 들어있는 값을 지칭함.
+    *a = *b;
+    *b = temp;
+    printf("swap 함수 안에서 k:%d, m:%d\n",a,b);
+    printf("Swap 함수 안에서 주소값- k:%d, m:%d\n",*a,*b);
+    
+}
+
+void changeArray(int *ptr){
+    ptr[2] = 50;
 }
