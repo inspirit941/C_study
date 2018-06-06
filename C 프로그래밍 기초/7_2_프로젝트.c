@@ -108,7 +108,7 @@ void shuffleAnimal(){
 }
 // 좌표에서 빈 공간 찾기
 int getEmptyPosition(){
-    for (int i=0;i<20;i++){
+    while(1){
         int randPos = rand() % 20; //0~19 사이의 숫자 반환
         // 19면 [3,4]로 접근할 수 있어야 함. = 바꾸는 작업 필요
         int x = convert_position_x(randPos);
