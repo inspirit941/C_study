@@ -42,6 +42,10 @@ void compress_line(char str[]){
 // compressed를 지울 경우 strcpy도 필요 없다.
 
 
+// 참고로 이거 처음에 할 때 전부 큰따옴표 처리했더니 while 반복오류 있었음.
+// C에서는 따옴표도 큰따옴표 작은따옴표 분류가 확실해 보인다. 현재까지는 완전한 character는 큰따옴표, \0같은 문자는 작은따옴표를 쓴다는 것.
+
+
 //키보드에서 한 줄 입력받고 compress하기.
 int read_line_with_compression(char str[], int limit){
     char ch,prev = '\0', i=0;
