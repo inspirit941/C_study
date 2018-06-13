@@ -33,7 +33,7 @@ int n = 0; // number of people in 전화번호부
 void add();
 void find();
 void status();
-void remove();
+void delete();
 
 int main(){
     char command[BUFFER_SIZE];
@@ -46,8 +46,8 @@ int main(){
             find();
         }else if (strcmp(command, "status")==0){
             status();
-        }else if (strcmp(command,"remove")==0){
-            remove();
+        }else if (strcmp(command,"delete")==0){
+            delete();
         }else if (strcmp(command,"exit")==0){
             break;
         }
@@ -107,7 +107,7 @@ void status(){
     printf("Total %d persons.\n",n);
     }
 }
-void remove(){
+void delete(){
     char buf[BUFFER_SIZE];
     scanf("%s",buf);
 
