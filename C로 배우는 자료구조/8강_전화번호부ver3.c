@@ -61,9 +61,23 @@ cf. 겹따옴표로 정의된 게 string literal.
 #define INIT_CAPACITY 3 //배열 재할당 테스트를 위해 일부러 작은 값으로
 #define BUFFER_SIZE 50
 
+
+void init_directory();
+int read_line(char str[], int limit);
+void process_command();
+void load(char *filename);
+void add(char *name, char *number);
+void status();
+void find(char *name);
+int search(char *name);
+void delete(char *name);
+void save(char *filename);
+void reallocate();
+
+
 char ** names; // char * 타입 배열의 이름이므로 char ** 타입의 변수이다.
 char ** numbers; // 동적메모리 할당을 위해서는 배열로 설정하는 게 아니라 포인터로 설정해야 함.
-void init_directory();
+
 
 /*char *str; simply declares a pointer 
 with no memory allocated to it, 
@@ -94,7 +108,8 @@ char **str은 *str에 쓴 내용을 불변하는 게 아니라 가변하게 만�
 int capacity = INIT_CAPACITY; // array 사이즈
 int n=0; // 전화번호부 사람 수
 
-char delim[] =" ";
+char delim[] = " ";
+
 int main(){
     init_directory(); // 배열 name과 number 선언
     process_command(); // 사용자의 명령을 받아 처리하는 부분을 별개의 함수로 변경
@@ -109,19 +124,30 @@ void init_directory(){
     // 호환성을 맞추기 위해.
     // 우리의 경우 배열 각 칸에 캐릭터 포인터를 저장할 것이므로, 배열 한 칸의 사이즈가 sizeof(char *)가 되는 것임.
 }
-int read_line(char str[], int limit){ // 배열 str의 크기. limit보다 긴 line의 경우 뒷부분이 짤린다.
-    int ch, i = 0;
-    //line 단위로 입력받는 건 fgets, getline이 있긴 하지만
-    // 보통 c 프로그래머는 자기가 알아서 함수를 만들어 쓴다.
-    while (ch = getchar()!= '\n'){ //줄바꿈 문자가 나오기 전까지 읽는다.
+// int read_line(char str[], int limit){ // 배열 str의 크기. limit보다 긴 line의 경우 뒷부분이 짤린다.
+//     int ch, i = 0;
+//     //line 단위로 입력받는 건 fgets, getline이 있긴 하지만
+//     // 보통 c 프로그래머는 자기가 알아서 함수를 만들어 쓴다.
+//     while (ch = getchar()!= '\n'){ //줄바꿈 문자가 나오기 전까지 읽는다.
     
-    // ch는 한 문자를 입력받지만, 희한하게도 선언은 int로 해야 한다. 이유는 설명하지 않았음
-        if (i<limit-1){ // 배열의 용량을 초과하지 않을 때만 저장한다.
-            str[i++] = ch;
+//     // ch는 한 문자를 입력받지만, 희한하게도 선언은 int로 해야 한다. 이유는 설명하지 않았음
+//         if (i<limit-1){ // 배열의 용량을 초과하지 않을 때만 저장한다.
+//             str[i++] = ch;
+//         }
+//     str[i] = '\0'; //마지막에 null character 추가하기.
+//     printf("%s",str);
+//     return i; //실제로 읽은 문자 수를 반환한다.
+//     }
+// }
+int read_line(char str[],int limit){
+    int ch,i=0;
+    while ((ch=getchar())!='\n'){ //getchar()의 반환타입은 int이다.
+        if (i < limit-1){
+            str[i++]=ch;
         }
-    str[i] = '\0'; //마지막에 null character 추가하기.
-    return i; //실제로 읽은 문자 수를 반환한다.
     }
+    str[i]='\0';
+    return i;
 }
 void process_command(){
     char command_line[BUFFER_SIZE]; //라인 하나 통째로 읽어오기
@@ -129,15 +155,24 @@ void process_command(){
 
     while (1){
         printf("$ ");
+        // scanf("%s",command_line);
+        // read_line 오류가 나서 그냥 scanf로 구현.
+        // 아마 int로 받아서 그런 거 같은데, 왜 이렇게 코드를 짜게 했는지 모르겠음.
+        // read_line(command_line, BUFFER_SIZE);
         if (read_line(command_line, BUFFER_SIZE)<=0){
             continue;
         }
-        command = strtok(command_line, delim); //command에 strtok를 넣을 수 있는 이유는
+        command = strtok(command_line, delim); 
+        printf("%s\n",command);
+        
+        //command에 strtok를 넣을 수 있는 이유는
         // command에 들어가 있는 건 string literl이 아니라 문자배열이기 때문
         // 즉 *command = "문자"일 경우 수정이 불가능하지만
         // 지금은 *command에 str[] 형태의 문자 배열이 입력된 것.
 
-        // if (command ==NULL) continue; 없어도 됨 이건.
+        if (command == NULL){
+            continue;
+        } //없어도 됨 이건.
         if (strcmp(command,"read")==0){
             argument1 = strtok(NULL,delim);
             if (argument1 == NULL){
@@ -146,9 +181,12 @@ void process_command(){
             }
             load(argument1);
         }else if(strcmp(command,"add")==0){
-            argument1 = strtok(NULL,delim);
+            argument1 = strtok(NULL, delim);
             argument2 = strtok(NULL, delim);
+            printf("%s : arg1\n",argument1);
+            printf("%s : arg2\n",argument2);
             if (argument1 ==NULL || argument2 ==NULL){
+                
                 printf("Invalid arguments.\n");
                 continue;
             }
@@ -184,6 +222,8 @@ void process_command(){
                 continue;
             }
             save(argument1);
+        } else if (strcmp(command, "exit")==0){
+            break;
         }
         
     }
@@ -193,7 +233,7 @@ void load(char *filename){
     char buf1[BUFFER_SIZE];
     char buf2[BUFFER_SIZE];
 
-    FILE *fp = fopen(filename,'r');
+    FILE *fp = fopen(filename,"r");
     if (fp=NULL){
         printf("open failed.\n");
         return;
@@ -229,7 +269,10 @@ void status(){
         printf("%s %s\n",names[i],numbers[i]);
     }
     printf("Total %d persons.\n", n);
+
 }
+
+
 void find(char *name){
     int index = search(name);
     if (index ==-1){
