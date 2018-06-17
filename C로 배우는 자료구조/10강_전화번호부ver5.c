@@ -81,8 +81,10 @@ int compose_name(char str[], int limit);
 void handle_add(char *name);
 void save(char *filename);
 int search(char * name);
-void print_person(Person p);
+void print_person(Person *p);
 void delete(char *name);
+void release_person(Person *p);
+void reallocate();
 
 
 Person ** directory;
@@ -249,6 +251,7 @@ void add(char *name, char *number, char *email, char *group){
     directory[i+1]->group = group;
     // strdup으로 복제하지 않고 저장한다. 
     n++;
+    printf("'%s' was added successfully.\n",name);
 }
 void reallocate(){
     capacity *=2;
@@ -348,3 +351,84 @@ int compose_name(char str[], int limit){
 // 변경된 자료구조와 add함수에 맞게 프로그램 나머지 부분을 수정해라.
 // save, search, print_person, status, find, handle_add.
 // v4와 달리 존재하지 않는 항목들은 전부 null로 저장되어 있다.
+// ex) handle_add에서 미리 strdup을 해야 한다 (강의에서 말한 힌트)
+
+// handle_add는 변경할 사항이 없다.
+// 어차피 지역변수 배열은 함수 끝나면 다 사라지기 때문.
+void handle_add(char *name){
+    char number[BUFFER_LENGTH], email[BUFFER_LENGTH], group[BUFFER_LENGTH];
+    char empty[]=" ";
+
+    printf(" Phone: ");
+    read_line(stdin, number, BUFFER_LENGTH);
+    // 만약 scanf로 이 값을 받으면, 사용자가 어떤 값을 입력하지 않고 엔터를 치면
+    // 값을 입력할 때까지 계속 기다린다. = 우리가 원하는 바가 아님.
+    printf(" Email: ");
+    read_line(stdin, email, BUFFER_LENGTH);
+
+    printf(" Group: ");
+    read_line(stdin, group, BUFFER_LENGTH);
+
+    add(strdup(name), (char *)(strlen(number)>0 ? strdup(number) : empty),
+            (char *)(strlen(number)>0 ? strdup(email) : empty),
+            (char *)(strlen(number)>0 ? strdup(group) : empty));
+    // 이름은 있으니까 name그대로.
+    // 나머지는 아무것도 안 넣고 enter 칠 수 있음.
+    // 입력한 경우 strlen 값이 0보다 큼.
+    // strlen(number) >0 ? number : empty
+    /* -> strlen(number >0 조건을 만족하면 number를, 만족하지 않으면 empty를 택해라.)
+    add라는 함수를 설정할 때 "아무 값도 입력하지 않으면 공백처리"가 있었기 때문에
+    empty[] = " "를 정의하고 strlen()>0 조건을 만족하지 않으면 공백 선택.
+    */
+}
+
+void save(char *filename){
+    int i;
+    FILE *fp = fopen(filename,"w");
+    if (fp = NULL){
+        printf("Open failded.\n");
+        return;
+    }
+    for (i=0;i<n;i++){
+        fprintf(fp, "%s#",directory[i]->name);
+        fprintf(fp, "%s#",directory[i]->number);
+        fprintf(fp, "%s#",directory[i]->email);
+        fprintf(fp, "%s#\n",directory[i]->group);
+        // 이름쓰기 + 구분자 # 추가. 마지막에는 \n로 줄바꿈.
+    }
+    fclose(fp);
+}
+
+int search(char *name){
+    int i;
+    for (i=0;i<n;i++){
+        if (strcmp(name, (*directory[i]).name)==0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+void print_person(Person *p){
+    printf("%s:\n",(*p).name);
+    printf("    Phone: %s\n",p->number);
+    printf("    Email: %s\n",p->email);
+    printf("    Group: %s\n",p->group);
+}
+
+void status(){
+    int i;
+    for (i=0;i<n;i++){
+        print_person(directory[i]);
+    }
+    printf("Total %d persons.\n",n);
+}
+
+void find(char *name){
+    int index = search(name);
+    if (index==-1){
+        printf("No person named '%s' exists.\n",name);
+    } else{
+        print_person(directory[index]);
+    }
+}
