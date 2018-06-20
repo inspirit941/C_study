@@ -75,7 +75,7 @@ Polynomial *create_polynomial_instance(char name){
 }
 
 int main(){
-
+    process_command();
 
     return 0;
 }
@@ -162,8 +162,12 @@ void print_poly(Polynomial *p){
     Term *t = p->first;
     while(t!=NULL){
         print_term(t); //각각의 항 출력
-        printf("+"); //중간에 +입력..? (계수에 따라 다르다)
         t = t->next;
+        if (t!=NULL){
+            printf("+");//중간에 +입력..? (계수에 따라 다르다)
+        } else{
+            printf(" \n");
+        }
     }
 }
 void print_term(Term *pterm){
@@ -194,6 +198,7 @@ void process_command(){
                 continue;
             }
             handle_print(arg1[0]);
+            
         } else if(strcmp(command,"calc")==0){
             // calc f 1처럼 명령어 입력. 함수 이름 / x값이라는 의미
             arg1 = strtok(NULL, " ");
@@ -207,6 +212,7 @@ void process_command(){
                 continue;
             }
             handle_calc(arg1[0], arg2);
+            continue;
             // 첫번째 매개변수는 함수이름. -> 문자 한 개만 받은 것.
             // 두번째 매개변수는 문자열을 받음. 12,100처럼 두세자리 일 수도 있기 때문
             // atoi()등을 통해 정수값으로 변환해도 된다.
@@ -214,6 +220,7 @@ void process_command(){
             break;
         }else{
             handle_definition(copied);
+            continue;
             //사용자가 입력한 다항식을 입력받아 정의한다.
         }
     }
@@ -244,7 +251,7 @@ void handle_definition(char *expression){
     erase_blanks(expression); //모든 공백문자 제거하기.
     char *f_name = strtok(expression,"=");
     if (f_name == NULL|| strlen(f_name)!=1){
-        printf("Unsupported comand.\n");
+        printf("Unsupported command.\n");
         return;
         // f = dfqjer 이런 식이어야 하는데
         // 등호 왼쪽 글자가 1글자가 아니거나, 값이 없는 경우 예외처리
@@ -301,6 +308,22 @@ void erase_blanks(char *expression){
     // 문자배열 expressiond에서 모든 공백문자를 제거하여 압축한다.
     // (배열된 문자 위치를 밀착시키면 된다.)
     //문자열 끝에 \0 추가해야 한다.
+    char *tmp;
+    char *token;
+    char result[BUFFER_LENGTH];
+    int length = 0;
+    tmp = expression; //혹시 몰라서 복사 - 원본데이터 유실방지용
+    token = strtok(tmp," "); // expression을 띄어쓰기 기준으로 나눔.
+    strcpy(result,token); // 나온 결과값을 result에 복사.
+    length+=strlen(token); //전체 length 값 증가
+    while((token=strtok(NULL," "))!=NULL){
+        // 현재 오버플로우 방지 안되는 상태.
+        strcat(result, token);
+        length+=strlen(token);
+    }
+    result[length]='\0';
+    
+    expression = result;
 }
 
 Polynomial *create_by_parse_polynomial(char name, char *body){
