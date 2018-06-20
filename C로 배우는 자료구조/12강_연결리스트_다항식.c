@@ -39,6 +39,24 @@ Polynomial *polys[MAX_POLYS];
 // 각각의 다항식 struct 주소값을 저장하는 배열.
 int n = 0;
 // 저장된 다항식 개수
+Term *create_term_instance();
+Polynomial *create_polynomial_instance(char name);
+void add_term(int c, int e, Polynomial *poly);
+int evalfunc(Polynomial *poly, int x);
+int evalfunc2(Term *term, int x);
+void print_poly(Polynomial *p);
+void print_term(Term *pterm);
+void process_command();
+void handle_print(char name);
+int read_line(FILE *fp, char str[], int n);
+void handle_calc(char name, char *x_str);
+void handle_definition(char *expression);
+void erase_blanks(char *expression);
+Polynomial *create_by_parse_polynomial(char name, char *body);
+int parse_and_add_term(char *expr, int begin, int end, Polynomial *p_poly);
+void insert_polynomial(Polynomial *ptr_poly);
+Polynomial * create_by_add_two_polynomials(char name, char f, char g);
+void destroy_polynomial(Polynomial *ptr_poly);
 
 Term *create_term_instance(){
     Term *t = (Term *)malloc(sizeof(Term));
@@ -54,6 +72,12 @@ Polynomial *create_polynomial_instance(char name){
     ptr_poly->size = 0;
     ptr_poly->first = NULL;
     return ptr_poly;
+}
+
+int main(){
+
+
+    return 0;
 }
 // 동적으로 생성된 객체를 적절히 초기화하지 않을 경우 프로그램 오류를 야기한다.
 // 이렇게 객체를 생성하고 기본값으로 초기화하는 함수를 따로 만들어 쓰는 것이 좋다.
@@ -198,11 +222,22 @@ void process_command(){
 void handle_print(char name){
     // left as exercise
     // print할 다항식을 검색해서, 있으면 출력
+    int i=0;
+    for (i=0;i<n;i++){
+        if (polys[i]->name == name){
+            print_poly(polys[i]);
+        }
+    }
 }
-void handel_calc(char name, char *x_str){
+void handle_calc(char name, char *x_str){
     // 위에 정의한 eval 함수들 가져와서 쓰기.
     // 다항식을 먼저 검색하고, 해당 값이 있으면 가져와서 계산하면 된다.
     // x는 문자열로 넘어왔다는 거 유의
+    for (int i=0;i<n;i++){
+        if (polys[i]->name==name){
+            evalfunc(polys[i],(int)(x_str-'0'));
+        }
+    }
 }
 void handle_definition(char *expression){
     // 문자열 전체를 받은 걸 expression으로 정의한다
@@ -240,7 +275,7 @@ void handle_definition(char *expression){
             printf("Invalid expression format.\n");
             return;
         }
-        Polynomial *pol = create_by_add_two_polynomias(f_name[0], former[0],later[0]);
+        Polynomial *pol = create_by_add_two_polynomials(f_name[0], former[0],later[0]);
         if (pol = NULL){
             printf("Invalid expression format.\n");
             return;
@@ -379,7 +414,7 @@ void insert_polynomial(Polynomial *ptr_poly){
     for (int i=0; i<n;i++){
         if (polys[i]->name == ptr_poly->name){
             // 이름이 똑같은 경우
-            destory_polynomial(polys[i]);
+            destroy_polynomial(polys[i]);
             polys[i]=ptr_poly;
             return;
         }
@@ -417,3 +452,15 @@ Polynomial * create_by_add_two_polynomials(char name, char f, char g){
     */
 }
 
+int read_line(FILE *fp, char str[], int n){
+    int ch,i = 0;
+    while (( ch =fgetc(fp) )!='\n' && ch !=EOF){
+        // 파일로부터 데이터를 읽어야 하므로 getchar()가 아니라 fgetc (파일에서 한 character를 읽음)
+        // 파일의 맨 마지막줄은 \n이 없다. 그래서 파일의 마지막을 지정하기 위해 EOF가 필요.
+        if (i<n){
+            str[i++]=ch;
+        } //overflow 생기지 않게 제약
+    }
+    str[i] = '\0';
+    return i;
+}
