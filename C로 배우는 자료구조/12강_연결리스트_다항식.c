@@ -51,7 +51,7 @@ void handle_print(char name);
 int read_line(FILE *fp, char str[], int n);
 void handle_calc(char name, char *x_str);
 void handle_definition(char *expression);
-void erase_blanks(char *expression);
+char * erase_blanks(char *expression);
 Polynomial *create_by_parse_polynomial(char name, char *body);
 int parse_and_add_term(char *expr, int begin, int end, Polynomial *p_poly);
 void insert_polynomial(Polynomial *ptr_poly);
@@ -248,8 +248,11 @@ void handle_calc(char name, char *x_str){
 }
 void handle_definition(char *expression){
     // 문자열 전체를 받은 걸 expression으로 정의한다
-    erase_blanks(expression); //모든 공백문자 제거하기.
+    expression = erase_blanks(expression); //모든 공백문자 제거하기.
+    printf("after erase blank : %s\n",expression);
+    
     char *f_name = strtok(expression,"=");
+    printf(f_name);
     if (f_name == NULL|| strlen(f_name)!=1){
         printf("Unsupported command.\n");
         return;
@@ -257,7 +260,9 @@ void handle_definition(char *expression){
         // 등호 왼쪽 글자가 1글자가 아니거나, 값이 없는 경우 예외처리
     }
     char *exp_body = strtok(NULL,"=");
+    printf("exp_body value = %s\n",exp_body);
     if (exp_body==NULL || strlen(exp_body)<=0){
+        // printf("exp_body = %s, strlen(exp_body) = %d",exp_body,strlen(exp_body));
         printf("Invalid expression format.--\n");
         return;
         // 등호 기준으로 strtok 했는데 null이라는 건
@@ -303,14 +308,14 @@ void handle_definition(char *expression){
     }
 }
 
-void erase_blanks(char *expression){
+char * erase_blanks(char *expression){
     //left as exercise
     // 문자배열 expressiond에서 모든 공백문자를 제거하여 압축한다.
     // (배열된 문자 위치를 밀착시키면 된다.)
     //문자열 끝에 \0 추가해야 한다.
     char *tmp;
     char *token;
-    char result[BUFFER_LENGTH];
+    char *result[BUFFER_LENGTH];
     int length = 0;
     tmp = expression; //혹시 몰라서 복사 - 원본데이터 유실방지용
     token = strtok(tmp," "); // expression을 띄어쓰기 기준으로 나눔.
@@ -320,10 +325,13 @@ void erase_blanks(char *expression){
         // 현재 오버플로우 방지 안되는 상태.
         strcat(result, token);
         length+=strlen(token);
+        
     }
     result[length]='\0';
     
-    expression = result;
+    expression = strdup(result);
+    printf("erase_blank finished. %s\n",expression);
+    return expression;
 }
 
 Polynomial *create_by_parse_polynomial(char name, char *body){
