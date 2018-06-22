@@ -1,7 +1,7 @@
 #ifndef LIBRARY_H
 #define LIBRARY_H
 
-#include <stdio.h>
+void add_song(char *artist, char *title, char *path);
 
-typedef struct song Song;
-typedef struct 
+
+#endif
