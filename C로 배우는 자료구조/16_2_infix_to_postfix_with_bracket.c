@@ -14,10 +14,19 @@
 #include <stdlib.h>
 #include "15_2_stackADT.h"
 
+
 static char OPERATORS[] = "+-*/()"; //괄호 추가
 static int PRECEDENCE[] = {1,1,2,2,-1,-1}; //여는 괄호와 닫는 괄호 우선순위는 -1
 // -1로 해두면 여는 괄호냐 아니냐를 검사할 필요가 없어지므로, 좀 더 간결해진다
 
+char *convert(char *infix);
+char *process_op(char op, char *pos);
+int is_operator(char ch);
+int precedence(char op);
+void handle_exception(const char *err_msg);
+int eval(char *expr);
+int eval_op(char op);
+int read_line(FILE *fp, char str[], int n);
 
 typedef int Item;
 
@@ -32,10 +41,10 @@ char *convert(char *infix){
     char *pos = postfix;
 
     char *token = strtok(infix, " ");
-    while (token(!=null)){
+    while (token != NULL){
         if (token[0]>='0'&& token[0]<='9'){ // 숫자가 들어온 경우
             sprintf(pos,"%s ",token); 
-// pos가 가리키는 주소 위치에, "%s "라는 형식으로 token값을 넣는다는 뜻.
+    // pos가 가리키는 주소 위치에, "%s "라는 형식으로 token값을 넣는다는 뜻.
             //sprintf를 이용해 문자열에 append한다
             // sprintf의 의미? 
             // char * 로 선언된 변수 안에 
@@ -55,11 +64,11 @@ char *convert(char *infix){
     while(is_empty(operator_stack)==1){ //operator 스택이 아직 남아있는 경우
         char op = (char)pop(operator_stack);
         if (op == '('){ //스택에 여는 괄호가 남아있어선 안 된다.
-// 괄호가 열렸는데 닫히지 않았단 뜻이므로. infix자체가 잘못되었단 의미다.
+    // 괄호가 열렸는데 닫히지 않았단 뜻이므로. infix자체가 잘못되었단 의미다.
             handle_exception("Unmatched parenthesis.");
         }
-        sprintf(pos, "%c ",op)
-        pos+=2;
+        sprintf(pos, "%c ",op);
+        pos += 2;
     }
     *pos = '\0';
     return postfix;
@@ -78,9 +87,9 @@ char *process_op(char op, char *pos){
             push(operator_stack,op);
         }else{
             while(is_empty(operator_stack)&& precedence(op)<=precedence(top_op)){
-// op의 우선순위가 top_op보다 낮다
-// = * 다음에 +가 들어온다 (연산의 우선순위는 *가 먼저 pop돼야 하는데)
-// 그리고 op 닫는 괄호라면 우선순위가 -1이므로 반드시 이 while문에 들어온다
+    // op의 우선순위가 top_op보다 낮다
+    // = * 다음에 +가 들어온다 (연산의 우선순위는 *가 먼저 pop돼야 하는데)
+    // 그리고 op 닫는 괄호라면 우선순위가 -1이므로 반드시 이 while문에 들어온다
                 pop(operator_stack);
                 if (top_op == '('){
                     break;
@@ -147,6 +156,7 @@ int main(){
 //16_스택응용_postfix_expression.c의 일부
 
 
+
 int eval(char *expr){ // expr = 후위표기식.
     operand_stack = create(); //스택 만듬. 스택 객체의 주소를 저장하는 포인터값을 생성함.
     char *token = strtok(expr," "); // 모든 연산자와 피연산자는 공백으로 구분되어 있다고 가정한다.
@@ -195,8 +205,19 @@ int eval_op(char op){
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////
+//14_2_string_tools.c의 read_line
 
-
+int read_line(FILE *fp, char str[], int n){
+// main.cpp에서 이 함수를 써야 하니까 헤더에도 선언해준다.
+    int ch, i = 0;
+    while((ch=fgetc(fp))!='\n' && ch != EOF){
+        if (i<n-1){
+            str[i++]=ch;
+        }
+    }
+    str[i] = '\0';
+    return i;
+}
 
 
 
