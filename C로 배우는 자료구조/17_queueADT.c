@@ -22,7 +22,8 @@ int get_size(Queue q){
 }
 
 Queue create(){
-    Queue q = (Queue *)malloc(sizeof(struct queue_type));
+    Queue q = (Queue)malloc(sizeof(struct queue_type));
+    // 여기는 왜 Queue *포인터 형태로 받지 않는가?
     if (q == NULL){
         terminate("Error in create: queue could not be created.");
     }
